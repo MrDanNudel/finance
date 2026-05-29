@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ניהול הוצאות והכנסות</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="top-area">
+        <button id="uploadBtn" class="action-btn">לחץ להעלאת נתונים</button>
+
+        <div class="month-box" id="monthTitle">חודש נוכחי</div>
+
+        <button id="statisticsBtn" class="action-btn secondary">
+          לצפייה בתצוגה סטטיסטית
+        </button>
+
+        <input type="file" id="fileInput" accept=".txt" hidden />
+      </header>
+
+      <section class="balance-section">
+        <h2>יתרת חשבון :</h2>
+        <div class="balance">11,200 -</div>
+      </section>
+
+      <section class="difference-section" id="differenceSection">
+        <h2>הפרש הכנסות מול הוצאות :</h2>
+        <div id="differenceTotal" class="difference-total">0</div>
+      </section>
+
+      <section class="summary-area" id="summaryArea">
+        <div class="column">
+          <h2 class="income-title">הכנסות</h2>
+          <div id="incomeTotal" class="total-badge income-badge">0</div>
+          <div id="incomeList" class="data-box empty-box">
+            עדיין לא הועלו נתונים
+          </div>
+        </div>
+
+        <div class="column">
+          <h2 class="expense-title">הוצאות</h2>
+          <div id="expenseTotal" class="total-badge expense-badge">0</div>
+          <div id="expenseList" class="data-box empty-box">
+            עדיין לא הועלו נתונים
+          </div>
+        </div>
+      </section>
+
+      <section id="statisticsView" class="statistics-view hidden">
+        <div class="stats-summary">
+          <div class="stat-pill income-pill">
+            <span>הכנסות</span>
+            <strong id="statsIncomeTotal">0</strong>
+          </div>
+
+          <div class="stat-pill expense-pill">
+            <span>הוצאות</span>
+            <strong id="statsExpenseTotal">0</strong>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>סך הכנסות מהגבוה לנמוך</h3>
+            <div id="topIncome"></div>
+          </div>
+
+          <div class="stat-card">
+            <h3>סך הוצאות מהגבוה לנמוך</h3>
+            <div id="topExpenses"></div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>הכנסות לפי יום בחודש</h3>
+            <div id="incomeChart" class="bar-chart"></div>
+          </div>
+
+          <div class="chart-card">
+            <h3>הוצאות לפי יום בחודש</h3>
+            <div id="expenseChart" class="bar-chart"></div>
+          </div>
+        </div>
+
+        <div class="pie-grid">
+          <div class="chart-card pie-card">
+            <h3>התפלגות הכנסות</h3>
+            <canvas id="incomePieChart"></canvas>
+          </div>
+
+          <div class="chart-card pie-card">
+            <h3>התפלגות הוצאות</h3>
+            <canvas id="expensePieChart"></canvas>
+          </div>
+        </div>
+
+        <div class="insights-grid">
+          <div class="chart-card">
+            <h3 class="income-insight-title">מסקנות על הכנסות</h3>
+            <div id="incomeInsights"></div>
+          </div>
+
+          <div class="chart-card">
+            <h3 class="expense-insight-title">מסקנות על הוצאות</h3>
+            <div id="expenseInsights"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
