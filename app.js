@@ -372,16 +372,25 @@ function addToCategoryMap(map, item) {
 
   map[categoryName].amount += item.amount;
 
-  map[categoryName].details[detailName] =
-    (map[categoryName].details[detailName] || 0) + item.amount;
+  if (!map[categoryName].details[detailName]) {
+    map[categoryName].details[detailName] = [];
+  }
+
+  map[categoryName].details[detailName].push(item.amount);
 }
 
 function sortCategoryMap(map) {
   return Object.values(map)
     .map((category) => ({
       ...category,
+
       details: Object.entries(category.details)
-        .map(([name, amount]) => ({ name, amount }))
+        .flatMap(([name, amounts]) =>
+          amounts.map((amount) => ({
+            name,
+            amount,
+          })),
+        )
         .sort((a, b) => b.amount - a.amount),
     }))
     .sort((a, b) => b.amount - a.amount);
@@ -432,36 +441,26 @@ function renderCategoryStatItems(items, type = null) {
         : "";
 
       return `
-  <div class="category-stat-block">
+        <div class="category-stat-block">
+          <div class="${buttonClass}" ${dataAttributes}>
+            <span>${index + 1}. ${item.name}</span>
 
-    <div
-      class="${buttonClass}"
-      ${dataAttributes}
-    >
-      <span>
-        ${index + 1}. ${item.name}
-      </span>
+            <span>
+              ${formatMoney(item.amount)} ש״ח
+              ${arrow}
+            </span>
+          </div>
 
-      <span>
-        ${formatMoney(item.amount)} ש״ח
-        ${arrow}
-      </span>
-    </div>
-
-    ${detailsHtml}
-
-  </div>
-`;
+          ${detailsHtml}
+        </div>
+      `;
     })
     .join("");
 
   const buttonHtml =
     type === "expense" && items.length > 10
       ? `
-        <button
-          id="showMoreExpensesBtn"
-          class="show-more-btn"
-        >
+        <button id="showMoreExpensesBtn" class="show-more-btn">
           ${showAllExpenses ? "הצג פחות" : "הצג עוד"}
         </button>
       `
