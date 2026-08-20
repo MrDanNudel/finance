@@ -16,7 +16,7 @@
             id="prevMonthBtn"
             class="month-nav-btn"
             type="button"
-            aria-label="מעבר לחודש הקודם"
+            aria-label="מעבר לחודש הבא"
             disabled
           >
             ‹
@@ -28,7 +28,7 @@
             id="nextMonthBtn"
             class="month-nav-btn"
             type="button"
-            aria-label="מעבר לחודש הבא"
+            aria-label="מעבר לחודש הקודם"
             disabled
           >
             ›
@@ -36,7 +36,7 @@
         </div>
 
         <button id="statisticsBtn" class="action-btn secondary">
-          לצפייה בתצוגה סטטיסטית
+          לצפייה בפירוט מלא
         </button>
 
         <input type="file" id="fileInput" accept=".txt" multiple hidden />
@@ -52,7 +52,7 @@
         <div id="differenceTotal" class="difference-total">0</div>
       </section>
 
-      <section class="summary-area" id="summaryArea">
+      <section class="summary-area hidden" id="summaryArea">
         <div class="column">
           <h2 class="income-title">הכנסות</h2>
           <div id="incomeTotal" class="total-badge income-badge">0</div>
@@ -70,7 +70,7 @@
         </div>
       </section>
 
-      <section id="statisticsView" class="statistics-view hidden">
+      <section id="statisticsView" class="statistics-view">
         <div class="stats-summary">
           <div class="stats-summary-column">
             <div class="stat-pill income-pill">

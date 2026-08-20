@@ -91,14 +91,14 @@ async function handleFileUpload(event) {
   loadedMonthKeys = Array.from(monthlyData.keys()).sort();
   currentMonthIndex = loadedMonthKeys.length - 1;
 
-  statisticsMode = false;
+  statisticsMode = true;
   showAllExpenses = false;
   openExpenseCategory = null;
   openIncomeCategory = null;
 
-  summaryArea.classList.remove("hidden");
-  statisticsView.classList.add("hidden");
-  statisticsBtn.textContent = "לצפייה בתצוגה סטטיסטית";
+  summaryArea.classList.add("hidden");
+  statisticsView.classList.remove("hidden");
+  statisticsBtn.textContent = "לצפייה בפירוט מלא";
 
   renderCurrentMonth();
 }
