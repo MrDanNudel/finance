@@ -11,7 +11,11 @@
       <header class="top-area">
         <button id="uploadBtn" class="action-btn">העלאת קובצי נתונים</button>
 
-        <div class="month-navigation" aria-label="מעבר בין חודשים">
+        <div
+          class="month-navigation"
+          aria-label="מעבר בין חודשים"
+          style="order: -999 !important"
+        >
           <button
             id="prevMonthBtn"
             class="month-nav-btn"
@@ -37,6 +41,14 @@
 
         <button id="statisticsBtn" class="action-btn secondary">
           לצפייה בפירוט מלא
+        </button>
+
+        <button
+          id="allMonthsBtn"
+          class="action-btn all-months-btn"
+          type="button"
+        >
+          סיכום כל החודשים
         </button>
 
         <input type="file" id="fileInput" accept=".txt" multiple hidden />
@@ -143,6 +155,126 @@
             <h3 class="expense-insight-title">מסקנות על הוצאות</h3>
             <div id="expenseInsights"></div>
           </div>
+        </div>
+      </section>
+
+      <section id="allMonthsView" class="all-months-view hidden">
+        <div class="all-months-heading">
+          <div>
+            <p class="section-eyebrow">מבט כולל</p>
+            <h2>סיכום כל החודשים שהועלו</h2>
+          </div>
+          <div id="allMonthsPeriod" class="period-badge">
+            עדיין לא הועלו נתונים
+          </div>
+        </div>
+
+        <div class="overall-kpi-grid">
+          <article class="overall-kpi income-kpi">
+            <span>סך כל ההכנסות</span>
+            <strong id="allIncomeTotal">0 ש״ח</strong>
+          </article>
+
+          <article class="overall-kpi expense-kpi">
+            <span>סך כל ההוצאות</span>
+            <strong id="allExpenseTotal">0 ש״ח</strong>
+          </article>
+
+          <article class="overall-kpi balance-kpi">
+            <span>מאזן כולל</span>
+            <strong id="allBalanceTotal">0 ש״ח</strong>
+          </article>
+
+          <article class="overall-kpi">
+            <span>ממוצע הכנסות לחודש</span>
+            <strong id="averageMonthlyIncome">0 ש״ח</strong>
+          </article>
+
+          <article class="overall-kpi">
+            <span>ממוצע הוצאות לחודש</span>
+            <strong id="averageMonthlyExpense">0 ש״ח</strong>
+          </article>
+
+          <article class="overall-kpi">
+            <span>ממוצע הכנסות ליום</span>
+            <strong id="averageDailyIncome">0 ש״ח</strong>
+          </article>
+
+          <article class="overall-kpi">
+            <span>ממוצע הוצאות ליום</span>
+            <strong id="averageDailyExpense">0 ש״ח</strong>
+          </article>
+
+          <article class="overall-kpi savings-kpi">
+            <span>שיעור חיסכון</span>
+            <strong id="savingsRate">0%</strong>
+          </article>
+        </div>
+
+        <div class="period-note" id="allMonthsCalculationNote"></div>
+
+        <div class="highlights-grid">
+          <article class="highlight-card">
+            <span>החודש עם ההכנסה הגבוהה ביותר</span>
+            <strong id="bestIncomeMonth">—</strong>
+          </article>
+          <article class="highlight-card">
+            <span>החודש עם ההוצאה הגבוהה ביותר</span>
+            <strong id="highestExpenseMonth">—</strong>
+          </article>
+          <article class="highlight-card positive-highlight">
+            <span>החודש עם המאזן הטוב ביותר</span>
+            <strong id="bestBalanceMonth">—</strong>
+          </article>
+          <article class="highlight-card negative-highlight">
+            <span>החודש עם המאזן הנמוך ביותר</span>
+            <strong id="worstBalanceMonth">—</strong>
+          </article>
+        </div>
+
+        <div class="charts-grid overall-charts-grid">
+          <div class="chart-card">
+            <h3>הכנסות מול הוצאות לפי חודש</h3>
+            <div class="overall-chart-wrap">
+              <canvas id="allMonthsComparisonChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>מגמת המאזן החודשי</h3>
+            <div class="overall-chart-wrap">
+              <canvas id="allMonthsBalanceChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>קטגוריות ההכנסה הגדולות בכל התקופה</h3>
+            <div id="allTopIncome"></div>
+          </div>
+
+          <div class="stat-card">
+            <h3>קטגוריות ההוצאה הגדולות בכל התקופה</h3>
+            <div id="allTopExpenses"></div>
+          </div>
+        </div>
+
+        <div class="pie-grid">
+          <div class="chart-card pie-card">
+            <h3>התפלגות כלל ההכנסות</h3>
+            <canvas id="allIncomePieChart"></canvas>
+          </div>
+
+          <div class="chart-card pie-card">
+            <h3>התפלגות כלל ההוצאות</h3>
+            <canvas id="allExpensePieChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card overall-insights-card">
+          <h3>מסקנות מכל התקופה</h3>
+          <div id="allMonthsInsights" class="insights-content"></div>
         </div>
       </section>
     </main>

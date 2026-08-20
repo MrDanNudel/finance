@@ -21,7 +21,7 @@ body {
 
 .top-area {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(170px, 1fr) auto minmax(190px, 1fr) auto;
   align-items: center;
   gap: 25px;
   margin-bottom: 35px;
@@ -98,6 +98,11 @@ body {
 
 .action-btn.secondary {
   background: rgba(255, 120, 255, 0.14);
+}
+
+.action-btn.all-months-btn {
+  background: rgba(121, 184, 255, 0.15);
+  color: #d8ecff;
 }
 
 .balance-section {
@@ -687,4 +692,238 @@ body {
 
 .expense-average-pill strong {
   color: #ff7777;
+}
+
+/* תצוגה מאוחדת של כל החודשים */
+.all-months-view {
+  margin-top: 35px;
+}
+
+.all-months-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 4px 2px;
+}
+
+.all-months-heading h2 {
+  margin: 4px 0 0;
+  color: #eef7ff;
+  font-size: 30px;
+}
+
+.section-eyebrow {
+  margin: 0;
+  color: #79b8ff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.period-badge {
+  padding: 10px 16px;
+  border: 1px solid rgba(121, 184, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(121, 184, 255, 0.1);
+  color: #b9dfff;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.overall-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.overall-kpi,
+.highlight-card {
+  background: rgba(255, 255, 255, 0.085);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(14px);
+  border-radius: 18px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+}
+
+.overall-kpi {
+  min-height: 112px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.overall-kpi span,
+.highlight-card span {
+  color: #b9cde2;
+  font-size: 14px;
+}
+
+.overall-kpi strong {
+  color: #eef7ff;
+  font-size: 25px;
+}
+
+.overall-kpi.income-kpi {
+  border-color: rgba(70, 255, 166, 0.28);
+}
+
+.overall-kpi.income-kpi strong {
+  color: #46ffa6;
+}
+
+.overall-kpi.expense-kpi {
+  border-color: rgba(255, 119, 119, 0.28);
+}
+
+.overall-kpi.expense-kpi strong {
+  color: #ff7777;
+}
+
+.overall-kpi.balance-kpi,
+.overall-kpi.savings-kpi {
+  background: linear-gradient(
+    145deg,
+    rgba(121, 184, 255, 0.14),
+    rgba(255, 255, 255, 0.07)
+  );
+}
+
+.period-note {
+  margin-bottom: 26px;
+  color: #91a9c1;
+  font-size: 13px;
+  text-align: center;
+}
+
+.highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.highlight-card {
+  min-height: 104px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.highlight-card strong {
+  color: #eef7ff;
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+.positive-highlight {
+  border-color: rgba(70, 255, 166, 0.22);
+}
+
+.negative-highlight {
+  border-color: rgba(255, 119, 119, 0.22);
+}
+
+.overall-chart-wrap {
+  height: 330px;
+  position: relative;
+}
+
+.overall-rank-row {
+  min-height: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.overall-rank-row:last-child {
+  border-bottom: none;
+}
+
+.overall-rank-name {
+  color: #eef7ff;
+}
+
+.overall-rank-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.overall-rank-meta small {
+  color: #79b8ff;
+}
+
+.overall-rank-meta strong {
+  color: #d6e7f7;
+  font-size: 15px;
+}
+
+.overall-insights-card {
+  margin-bottom: 28px;
+}
+
+@media (max-width: 1050px) {
+  .top-area {
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .all-months-btn {
+    grid-column: 1 / -1;
+  }
+
+  .overall-kpi-grid,
+  .highlights-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 850px) {
+  .top-area {
+    grid-template-columns: 1fr;
+  }
+
+  .all-months-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .period-badge {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 600px) {
+  .overall-kpi-grid,
+  .highlights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .all-months-heading h2 {
+    font-size: 25px;
+  }
+
+  .overall-rank-row {
+    align-items: flex-start;
+  }
+
+  .overall-rank-meta {
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .overall-chart-wrap {
+    height: 280px;
+  }
 }

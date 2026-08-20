@@ -17,8 +17,12 @@ const expenseTotalEl = document.getElementById("expenseTotal");
 const differenceTotalEl = document.getElementById("differenceTotal");
 
 const statisticsBtn = document.getElementById("statisticsBtn");
+const allMonthsBtn = document.getElementById("allMonthsBtn");
 const summaryArea = document.getElementById("summaryArea");
 const statisticsView = document.getElementById("statisticsView");
+const allMonthsView = document.getElementById("allMonthsView");
+const balanceSection = document.querySelector(".balance-section");
+const differenceSection = document.getElementById("differenceSection");
 
 const topIncome = document.getElementById("topIncome");
 const topExpenses = document.getElementById("topExpenses");
@@ -41,11 +45,41 @@ const expensePieChart = document.getElementById("expensePieChart");
 const incomeInsights = document.getElementById("incomeInsights");
 const expenseInsights = document.getElementById("expenseInsights");
 
+const allMonthsPeriod = document.getElementById("allMonthsPeriod");
+const allIncomeTotal = document.getElementById("allIncomeTotal");
+const allExpenseTotal = document.getElementById("allExpenseTotal");
+const allBalanceTotal = document.getElementById("allBalanceTotal");
+const averageMonthlyIncome = document.getElementById("averageMonthlyIncome");
+const averageMonthlyExpense = document.getElementById("averageMonthlyExpense");
+const averageDailyIncome = document.getElementById("averageDailyIncome");
+const averageDailyExpense = document.getElementById("averageDailyExpense");
+const savingsRate = document.getElementById("savingsRate");
+const allMonthsCalculationNote = document.getElementById(
+  "allMonthsCalculationNote",
+);
+const bestIncomeMonth = document.getElementById("bestIncomeMonth");
+const highestExpenseMonth = document.getElementById("highestExpenseMonth");
+const bestBalanceMonth = document.getElementById("bestBalanceMonth");
+const worstBalanceMonth = document.getElementById("worstBalanceMonth");
+const allTopIncome = document.getElementById("allTopIncome");
+const allTopExpenses = document.getElementById("allTopExpenses");
+const allMonthsComparisonChart = document.getElementById(
+  "allMonthsComparisonChart",
+);
+const allMonthsBalanceChart = document.getElementById("allMonthsBalanceChart");
+const allIncomePieChart = document.getElementById("allIncomePieChart");
+const allExpensePieChart = document.getElementById("allExpensePieChart");
+const allMonthsInsights = document.getElementById("allMonthsInsights");
+
 let incomePieInstance = null;
 let expensePieInstance = null;
+let allMonthsComparisonInstance = null;
+let allMonthsBalanceInstance = null;
+let allIncomePieInstance = null;
+let allExpensePieInstance = null;
 
 let currentParsedDays = [];
-let statisticsMode = false;
+let activeView = "statistics";
 const monthlyData = new Map();
 let loadedMonthKeys = [];
 let currentMonthIndex = -1;
@@ -56,6 +90,7 @@ uploadBtn.addEventListener("click", () => {
 
 fileInput.addEventListener("change", handleFileUpload);
 statisticsBtn.addEventListener("click", toggleStatisticsView);
+allMonthsBtn.addEventListener("click", toggleAllMonthsView);
 prevMonthBtn.addEventListener("click", () => changeMonth(1));
 nextMonthBtn.addEventListener("click", () => changeMonth(-1));
 
@@ -91,14 +126,10 @@ async function handleFileUpload(event) {
   loadedMonthKeys = Array.from(monthlyData.keys()).sort();
   currentMonthIndex = loadedMonthKeys.length - 1;
 
-  statisticsMode = true;
+  activeView = "statistics";
   showAllExpenses = false;
   openExpenseCategory = null;
   openIncomeCategory = null;
-
-  summaryArea.classList.add("hidden");
-  statisticsView.classList.remove("hidden");
-  statisticsBtn.textContent = "לצפייה בפירוט מלא";
 
   renderCurrentMonth();
 }
@@ -159,9 +190,12 @@ function renderCurrentMonth() {
   openIncomeCategory = null;
 
   renderDashboard(currentParsedDays);
+  applyActiveView();
 
-  if (statisticsMode) {
+  if (activeView === "statistics") {
     renderStatistics(currentParsedDays);
+  } else if (activeView === "all") {
+    renderAllMonthsSummary();
   }
 
   updateMonthNavigation();
@@ -177,8 +211,10 @@ function changeMonth(direction) {
 }
 
 function updateMonthNavigation() {
-  prevMonthBtn.disabled = currentMonthIndex >= loadedMonthKeys.length - 1;
-  nextMonthBtn.disabled = currentMonthIndex <= 0;
+  const viewingAllMonths = activeView === "all";
+  prevMonthBtn.disabled =
+    viewingAllMonths || currentMonthIndex >= loadedMonthKeys.length - 1;
+  nextMonthBtn.disabled = viewingAllMonths || currentMonthIndex <= 0;
 }
 
 function extractSectionItems(dayText, sectionName) {
@@ -360,17 +396,40 @@ function toggleStatisticsView() {
     return;
   }
 
-  statisticsMode = !statisticsMode;
+  activeView = activeView === "statistics" ? "details" : "statistics";
+  renderCurrentMonth();
+}
 
-  if (statisticsMode) {
-    summaryArea.classList.add("hidden");
-    statisticsView.classList.remove("hidden");
-    statisticsBtn.textContent = "לצפייה בפירוט מלא";
-    renderStatistics(currentParsedDays);
+function toggleAllMonthsView() {
+  if (monthlyData.size === 0) {
+    alert("קודם צריך להעלות לפחות קובץ נתונים אחד");
+    return;
+  }
+
+  activeView = activeView === "all" ? "statistics" : "all";
+  renderCurrentMonth();
+}
+
+function applyActiveView() {
+  const showDetails = activeView === "details";
+  const showStatistics = activeView === "statistics";
+  const showAllMonths = activeView === "all";
+
+  summaryArea.classList.toggle("hidden", !showDetails);
+  statisticsView.classList.toggle("hidden", !showStatistics);
+  allMonthsView.classList.toggle("hidden", !showAllMonths);
+  balanceSection.classList.toggle("hidden", showAllMonths);
+  differenceSection.classList.toggle("hidden", showAllMonths);
+
+  if (showAllMonths) {
+    monthTitle.textContent = "כל החודשים";
+    statisticsBtn.textContent = "חזרה לסטטיסטיקה חודשית";
+    allMonthsBtn.textContent = "חזרה לחודש הנבחר";
   } else {
-    summaryArea.classList.remove("hidden");
-    statisticsView.classList.add("hidden");
-    statisticsBtn.textContent = "לצפייה בתצוגה סטטיסטית";
+    statisticsBtn.textContent = showStatistics
+      ? "לצפייה בפירוט מלא"
+      : "לצפייה בתצוגה סטטיסטית";
+    allMonthsBtn.textContent = "סיכום כל החודשים";
   }
 }
 
@@ -733,6 +792,296 @@ function generateInsights(items, total, type) {
       </p>
     </div>
   `;
+}
+
+function renderAllMonthsSummary() {
+  const summary = createAllMonthsSummary();
+  if (!summary.months.length) return;
+
+  const {
+    months,
+    totalIncome,
+    totalExpenses,
+    totalBalance,
+    trackedDays,
+    sortedIncome,
+    sortedExpenses,
+  } = summary;
+  const monthCount = months.length;
+  const monthlyIncomeAverage = Math.round(totalIncome / monthCount);
+  const monthlyExpenseAverage = Math.round(totalExpenses / monthCount);
+  const dailyIncomeAverage = trackedDays
+    ? Math.round(totalIncome / trackedDays)
+    : 0;
+  const dailyExpenseAverage = trackedDays
+    ? Math.round(totalExpenses / trackedDays)
+    : 0;
+  const savingsPercentage = totalIncome
+    ? (totalBalance / totalIncome) * 100
+    : 0;
+
+  const highestIncome = getExtremeMonth(months, "income", "max");
+  const highestExpense = getExtremeMonth(months, "expenses", "max");
+  const bestBalance = getExtremeMonth(months, "balance", "max");
+  const worstBalance = getExtremeMonth(months, "balance", "min");
+
+  allMonthsPeriod.textContent = `${months[0].label} – ${months[monthCount - 1].label} · ${monthCount} חודשים`;
+  allIncomeTotal.textContent = `${formatMoney(totalIncome)} ש״ח`;
+  allExpenseTotal.textContent = `${formatMoney(totalExpenses)} ש״ח`;
+  allBalanceTotal.textContent = `${formatMoney(totalBalance)} ש״ח`;
+  averageMonthlyIncome.textContent = `${formatMoney(monthlyIncomeAverage)} ש״ח`;
+  averageMonthlyExpense.textContent = `${formatMoney(monthlyExpenseAverage)} ש״ח`;
+  averageDailyIncome.textContent = `${formatMoney(dailyIncomeAverage)} ש״ח`;
+  averageDailyExpense.textContent = `${formatMoney(dailyExpenseAverage)} ש״ח`;
+  savingsRate.textContent = `${formatPercent(savingsPercentage)}%`;
+  allMonthsCalculationNote.textContent = `הממוצע היומי מחושב לפי ${trackedDays} ימים שנכללו בתקופות שהועלו. העלאה חוזרת של אותו חודש מחליפה אותו ואינה נספרת פעמיים.`;
+
+  setSignedValueClass(allBalanceTotal, totalBalance);
+  setSignedValueClass(savingsRate, savingsPercentage);
+  setMonthHighlight(bestIncomeMonth, highestIncome, "income");
+  setMonthHighlight(highestExpenseMonth, highestExpense, "expenses");
+  setMonthHighlight(bestBalanceMonth, bestBalance, "balance");
+  setMonthHighlight(worstBalanceMonth, worstBalance, "balance");
+
+  allTopIncome.innerHTML = renderOverallRanking(sortedIncome, "income");
+  allTopExpenses.innerHTML = renderOverallRanking(sortedExpenses, "expense");
+
+  renderAllMonthsCharts(months);
+
+  allIncomePieInstance = renderPieChart(
+    allIncomePieChart,
+    allIncomePieInstance,
+    sortedIncome.map((item) => [item.name, item.amount]),
+  );
+  allExpensePieInstance = renderPieChart(
+    allExpensePieChart,
+    allExpensePieInstance,
+    sortedExpenses.map((item) => [item.name, item.amount]),
+  );
+
+  allMonthsInsights.innerHTML = generateAllMonthsInsights(summary);
+}
+
+function createAllMonthsSummary() {
+  const incomeMap = {};
+  const expenseMap = {};
+
+  const months = loadedMonthKeys.map((key) => {
+    const days = monthlyData.get(key) || [];
+    const income = days.reduce((sum, day) => sum + sumItems(day.income), 0);
+    const expenses = days.reduce((sum, day) => sum + sumItems(day.expenses), 0);
+
+    days.forEach((day) => {
+      day.income.forEach((item) => addToCategoryMap(incomeMap, item, day.date));
+      day.expenses.forEach((item) =>
+        addToCategoryMap(expenseMap, item, day.date),
+      );
+    });
+
+    return {
+      key,
+      label: detectMonth(days),
+      income,
+      expenses,
+      balance: income - expenses,
+      trackedDays: getTrackedDayCount(days),
+    };
+  });
+
+  const totalIncome = months.reduce((sum, month) => sum + month.income, 0);
+  const totalExpenses = months.reduce((sum, month) => sum + month.expenses, 0);
+
+  return {
+    months,
+    totalIncome,
+    totalExpenses,
+    totalBalance: totalIncome - totalExpenses,
+    trackedDays: months.reduce((sum, month) => sum + month.trackedDays, 0),
+    sortedIncome: sortCategoryMap(incomeMap),
+    sortedExpenses: sortCategoryMap(expenseMap),
+  };
+}
+
+function getExtremeMonth(months, key, mode) {
+  return months.reduce((selected, month) => {
+    if (!selected) return month;
+    return mode === "min"
+      ? month[key] < selected[key]
+        ? month
+        : selected
+      : month[key] > selected[key]
+        ? month
+        : selected;
+  }, null);
+}
+
+function setMonthHighlight(element, month, key) {
+  if (!month) {
+    element.textContent = "—";
+    return;
+  }
+
+  element.textContent = `${month.label} · ${formatMoney(month[key])} ש״ח`;
+  if (key === "balance") setSignedValueClass(element, month[key]);
+}
+
+function setSignedValueClass(element, value) {
+  element.classList.remove("difference-positive", "difference-negative");
+  element.classList.add(
+    value >= 0 ? "difference-positive" : "difference-negative",
+  );
+}
+
+function renderOverallRanking(items, type) {
+  if (!items.length) {
+    return `<div class="stat-item"><span>אין נתונים</span></div>`;
+  }
+
+  const total = items.reduce((sum, item) => sum + item.amount, 0);
+
+  return items
+    .slice(0, 10)
+    .map((item, index) => {
+      const percentage = total ? (item.amount / total) * 100 : 0;
+
+      return `
+        <div class="overall-rank-row ${type}-rank-row">
+          <span class="overall-rank-name">${index + 1}. ${item.name}</span>
+          <span class="overall-rank-meta">
+            <small>${formatPercent(percentage)}%</small>
+            <strong>${formatMoney(item.amount)} ש״ח</strong>
+          </span>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function renderAllMonthsCharts(months) {
+  const labels = months.map((month) => month.label);
+  const sharedOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: { color: "#ffffff" },
+      },
+      tooltip: {
+        callbacks: {
+          label(context) {
+            return `${context.dataset.label}: ${formatMoney(context.raw)} ש״ח`;
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: { color: "#b9cde2" },
+        grid: { color: "rgba(255,255,255,0.06)" },
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          color: "#b9cde2",
+          callback(value) {
+            return formatMoney(value);
+          },
+        },
+        grid: { color: "rgba(255,255,255,0.08)" },
+      },
+    },
+  };
+
+  if (allMonthsComparisonInstance) allMonthsComparisonInstance.destroy();
+  allMonthsComparisonInstance = new Chart(allMonthsComparisonChart, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "הכנסות",
+          data: months.map((month) => month.income),
+          backgroundColor: "rgba(70, 255, 166, 0.72)",
+          borderColor: "#46ffa6",
+          borderWidth: 1,
+          borderRadius: 8,
+        },
+        {
+          label: "הוצאות",
+          data: months.map((month) => month.expenses),
+          backgroundColor: "rgba(255, 119, 119, 0.72)",
+          borderColor: "#ff7777",
+          borderWidth: 1,
+          borderRadius: 8,
+        },
+      ],
+    },
+    options: sharedOptions,
+  });
+
+  if (allMonthsBalanceInstance) allMonthsBalanceInstance.destroy();
+  allMonthsBalanceInstance = new Chart(allMonthsBalanceChart, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "מאזן חודשי",
+          data: months.map((month) => month.balance),
+          borderColor: "#79b8ff",
+          backgroundColor: "rgba(121, 184, 255, 0.16)",
+          pointBackgroundColor: months.map((month) =>
+            month.balance >= 0 ? "#46ffa6" : "#ff7777",
+          ),
+          pointRadius: 5,
+          tension: 0.32,
+          fill: true,
+        },
+      ],
+    },
+    options: sharedOptions,
+  });
+}
+
+function generateAllMonthsInsights(summary) {
+  const { months, totalIncome, totalExpenses, totalBalance, sortedExpenses } =
+    summary;
+  const firstMonth = months[0];
+  const lastMonth = months[months.length - 1];
+  const topExpense = sortedExpenses[0];
+  const balanceText =
+    totalBalance >= 0
+      ? `נשארו ${formatMoney(totalBalance)} ש״ח לאחר ההוצאות.`
+      : `ההוצאות גבוהות מההכנסות ב־${formatMoney(Math.abs(totalBalance))} ש״ח.`;
+
+  let trendText = "נדרש לפחות מידע משני חודשים כדי לזהות שינוי חודשי.";
+  if (months.length > 1) {
+    const expenseChange = firstMonth.expenses
+      ? ((lastMonth.expenses - firstMonth.expenses) / firstMonth.expenses) * 100
+      : 0;
+    const direction = expenseChange > 0 ? "עלו" : "ירדו";
+    trendText = `מהחודש הראשון לאחרון ההוצאות ${direction} ב־${formatPercent(Math.abs(expenseChange))}%.`;
+  }
+
+  const topExpenseText = topExpense
+    ? `קטגוריית ההוצאה הגדולה ביותר היא <strong>${topExpense.name}</strong>, בסך ${formatMoney(topExpense.amount)} ש״ח.`
+    : "לא הוזנו קטגוריות הוצאה.";
+
+  const expenseRatio = totalIncome ? (totalExpenses / totalIncome) * 100 : 0;
+
+  return `
+    <p><strong>תמונת מצב:</strong> ${balanceText}</p>
+    <p><strong>יחס הוצאות להכנסות:</strong> ${formatPercent(expenseRatio)}%.</p>
+    <p><strong>הוצאה מרכזית:</strong> ${topExpenseText}</p>
+    <p><strong>מגמה:</strong> ${trendText}</p>
+  `;
+}
+
+function formatPercent(value) {
+  return Number(value).toLocaleString("he-IL", {
+    maximumFractionDigits: 1,
+  });
 }
 
 function detectMonth(days) {
