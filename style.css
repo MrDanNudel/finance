@@ -604,3 +604,49 @@ body {
     grid-row: 2;
   }
 }
+
+/* סיכום וממוצע יומי בתצוגה הסטטיסטית */
+.stats-summary-column {
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 12px;
+}
+
+.daily-average-pill {
+  min-height: 32px;
+  margin: 0 0 10px;
+  padding: 4px 0 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.daily-average-pill span {
+  color: #b9cde2;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.daily-average-pill span::after {
+  content: ":";
+}
+
+.daily-average-pill strong {
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.income-average-pill strong {
+  color: #46ffa6;
+}
+
+.expense-average-pill strong {
+  color: #ff7777;
+}

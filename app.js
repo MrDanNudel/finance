@@ -23,6 +23,12 @@ const topExpenses = document.getElementById("topExpenses");
 
 const statsIncomeTotal = document.getElementById("statsIncomeTotal");
 const statsExpenseTotal = document.getElementById("statsExpenseTotal");
+const statsIncomeDailyAverage = document.getElementById(
+  "statsIncomeDailyAverage",
+);
+const statsExpenseDailyAverage = document.getElementById(
+  "statsExpenseDailyAverage",
+);
 
 const incomeChart = document.getElementById("incomeChart");
 const expenseChart = document.getElementById("expenseChart");
@@ -324,6 +330,17 @@ function renderStatistics(days) {
 
   statsIncomeTotal.textContent = `${formatMoney(totalIncome)} ש״ח`;
   statsExpenseTotal.textContent = `${formatMoney(totalExpenses)} ש״ח`;
+
+  const trackedDayCount = getTrackedDayCount(days);
+  const dailyIncomeAverage = trackedDayCount
+    ? Math.round(totalIncome / trackedDayCount)
+    : 0;
+  const dailyExpenseAverage = trackedDayCount
+    ? Math.round(totalExpenses / trackedDayCount)
+    : 0;
+
+  statsIncomeDailyAverage.textContent = `${formatMoney(dailyIncomeAverage)} ש״ח`;
+  statsExpenseDailyAverage.textContent = `${formatMoney(dailyExpenseAverage)} ש״ח`;
 
   topIncome.innerHTML = renderCategoryStatItems(sortedIncome, "income");
   topExpenses.innerHTML = renderCategoryStatItems(sortedExpenses, "expense");
@@ -675,6 +692,14 @@ function sortMap(map) {
 
 function sumItems(items) {
   return items.reduce((sum, item) => sum + item.amount, 0);
+}
+
+function getTrackedDayCount(days) {
+  const dayNumbers = days
+    .map((day) => Number(day.date.split(".")[0]))
+    .filter((dayNumber) => Number.isFinite(dayNumber));
+
+  return dayNumbers.length ? Math.max(...dayNumbers) : 0;
 }
 
 function formatMoney(value) {

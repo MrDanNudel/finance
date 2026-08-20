@@ -6,6 +6,7 @@
     <title>ניהול הוצאות והכנסות</title>
     <link rel="stylesheet" href="style.css" />
   </head>
+
   <body>
     <main class="dashboard">
       <header class="top-area">
@@ -21,19 +22,21 @@
       </header>
 
       <section class="balance-section">
-        <h2>יתרת חשבון :</h2>
+        <h2>יתרת חשבון:</h2>
         <div class="balance">2,000-</div>
       </section>
 
       <section class="difference-section" id="differenceSection">
-        <h2>הפרש הכנסות מול הוצאות :</h2>
+        <h2>הפרש הכנסות מול הוצאות:</h2>
         <div id="differenceTotal" class="difference-total">0</div>
       </section>
 
       <section class="summary-area" id="summaryArea">
         <div class="column">
           <h2 class="income-title">הכנסות</h2>
+
           <div id="incomeTotal" class="total-badge income-badge">0</div>
+
           <div id="incomeList" class="data-box empty-box">
             עדיין לא הועלו נתונים
           </div>
@@ -41,7 +44,9 @@
 
         <div class="column">
           <h2 class="expense-title">הוצאות</h2>
+
           <div id="expenseTotal" class="total-badge expense-badge">0</div>
+
           <div id="expenseList" class="data-box empty-box">
             עדיין לא הועלו נתונים
           </div>
@@ -50,14 +55,30 @@
 
       <section id="statisticsView" class="statistics-view hidden">
         <div class="stats-summary">
-          <div class="stat-pill income-pill">
-            <span>הכנסות</span>
-            <strong id="statsIncomeTotal">0</strong>
+          <!-- סיכום הכנסות -->
+          <div class="stats-summary-column">
+            <div class="stat-pill income-pill">
+              <span>הכנסות</span>
+              <strong id="statsIncomeTotal">0</strong>
+            </div>
+
+            <div class="daily-average-pill income-average-pill">
+              <span>ממוצע הכנסות יומי</span>
+              <strong id="statsIncomeDailyAverage">0</strong>
+            </div>
           </div>
 
-          <div class="stat-pill expense-pill">
-            <span>הוצאות</span>
-            <strong id="statsExpenseTotal">0</strong>
+          <!-- סיכום הוצאות -->
+          <div class="stats-summary-column">
+            <div class="stat-pill expense-pill">
+              <span>הוצאות</span>
+              <strong id="statsExpenseTotal">0</strong>
+            </div>
+
+            <div class="daily-average-pill expense-average-pill">
+              <span>ממוצע הוצאות יומי</span>
+              <strong id="statsExpenseDailyAverage">0</strong>
+            </div>
           </div>
         </div>
 
@@ -100,11 +121,13 @@
         <div class="insights-grid">
           <div class="chart-card">
             <h3 class="income-insight-title">מסקנות על הכנסות</h3>
+
             <div id="incomeInsights"></div>
           </div>
 
           <div class="chart-card">
             <h3 class="expense-insight-title">מסקנות על הוצאות</h3>
+
             <div id="expenseInsights"></div>
           </div>
         </div>
