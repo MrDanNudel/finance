@@ -48,6 +48,40 @@ body {
   text-align: center;
 }
 
+.month-navigation {
+  display: grid;
+  grid-template-columns: 42px minmax(190px, auto) 42px;
+  align-items: center;
+  gap: 10px;
+  direction: ltr;
+}
+
+.month-nav-btn {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.09);
+  color: #b9dfff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.month-nav-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: rgba(0, 174, 255, 0.16);
+  color: #ffffff;
+}
+
+.month-nav-btn:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
 .action-btn {
   border: none;
   color: white;
@@ -538,6 +572,10 @@ body {
 
   .dashboard {
     padding: 25px 14px;
+  }
+
+  .month-navigation {
+    justify-content: center;
   }
 
   .day-card-header,

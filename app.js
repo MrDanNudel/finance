@@ -6,6 +6,8 @@ let openExpenseCategory = null;
 let openIncomeCategory = null;
 
 const monthTitle = document.getElementById("monthTitle");
+const prevMonthBtn = document.getElementById("prevMonthBtn");
+const nextMonthBtn = document.getElementById("nextMonthBtn");
 
 const incomeList = document.getElementById("incomeList");
 const expenseList = document.getElementById("expenseList");
@@ -44,6 +46,9 @@ let expensePieInstance = null;
 
 let currentParsedDays = [];
 let statisticsMode = false;
+const monthlyData = new Map();
+let loadedMonthKeys = [];
+let currentMonthIndex = -1;
 
 uploadBtn.addEventListener("click", () => {
   fileInput.click();
@@ -51,34 +56,54 @@ uploadBtn.addEventListener("click", () => {
 
 fileInput.addEventListener("change", handleFileUpload);
 statisticsBtn.addEventListener("click", toggleStatisticsView);
+prevMonthBtn.addEventListener("click", () => changeMonth(1));
+nextMonthBtn.addEventListener("click", () => changeMonth(-1));
 
-function handleFileUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+async function handleFileUpload(event) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
 
-  const reader = new FileReader();
+  const parsedFiles = await Promise.all(
+    files.map(async (file) => {
+      const text = await file.text();
+      const year = detectYear(text, file.name);
 
-  reader.onload = function (e) {
-    const text = e.target.result;
-    const parsedData = parseMonthlyText(text);
+      return parseMonthlyText(text, year);
+    }),
+  );
 
-    currentParsedDays = parsedData;
-    statisticsMode = false;
-    showAllExpenses = false;
-    openExpenseCategory = null;
-    openIncomeCategory = null;
+  let validFileCount = 0;
 
-    summaryArea.classList.remove("hidden");
-    statisticsView.classList.add("hidden");
-    statisticsBtn.textContent = "לצפייה בתצוגה סטטיסטית";
+  parsedFiles.forEach((parsedData) => {
+    if (!parsedData.length) return;
 
-    renderDashboard(parsedData);
-  };
+    monthlyData.set(getMonthKey(parsedData), parsedData);
+    validFileCount += 1;
+  });
 
-  reader.readAsText(file, "UTF-8");
+  fileInput.value = "";
+
+  if (!validFileCount) {
+    alert("לא נמצאו נתונים תקינים בקבצים שנבחרו");
+    return;
+  }
+
+  loadedMonthKeys = Array.from(monthlyData.keys()).sort();
+  currentMonthIndex = loadedMonthKeys.length - 1;
+
+  statisticsMode = false;
+  showAllExpenses = false;
+  openExpenseCategory = null;
+  openIncomeCategory = null;
+
+  summaryArea.classList.remove("hidden");
+  statisticsView.classList.add("hidden");
+  statisticsBtn.textContent = "לצפייה בתצוגה סטטיסטית";
+
+  renderCurrentMonth();
 }
 
-function parseMonthlyText(text) {
+function parseMonthlyText(text, year = new Date().getFullYear()) {
   const cleanText = text
     .replace(/\r/g, "")
     .replace(/[⁠]/g, "")
@@ -103,13 +128,57 @@ function parseMonthlyText(text) {
     const income = extractSectionItems(dayContent, "הכנסות");
 
     days.push({
-      date: `${date}.2026`,
+      date: `${date}.${year}`,
       expenses,
       income,
     });
   }
 
   return days;
+}
+
+function detectYear(text, fileName = "") {
+  const yearMatch = `${fileName} ${text}`.match(/\b(20\d{2})\b/);
+
+  return yearMatch ? Number(yearMatch[1]) : new Date().getFullYear();
+}
+
+function getMonthKey(days) {
+  const [, month, year] = days[0].date.split(".");
+
+  return `${year}-${month}`;
+}
+
+function renderCurrentMonth() {
+  const monthKey = loadedMonthKeys[currentMonthIndex];
+  if (!monthKey) return;
+
+  currentParsedDays = monthlyData.get(monthKey) || [];
+  showAllExpenses = false;
+  openExpenseCategory = null;
+  openIncomeCategory = null;
+
+  renderDashboard(currentParsedDays);
+
+  if (statisticsMode) {
+    renderStatistics(currentParsedDays);
+  }
+
+  updateMonthNavigation();
+}
+
+function changeMonth(direction) {
+  const nextIndex = currentMonthIndex + direction;
+
+  if (nextIndex < 0 || nextIndex >= loadedMonthKeys.length) return;
+
+  currentMonthIndex = nextIndex;
+  renderCurrentMonth();
+}
+
+function updateMonthNavigation() {
+  prevMonthBtn.disabled = currentMonthIndex >= loadedMonthKeys.length - 1;
+  nextMonthBtn.disabled = currentMonthIndex <= 0;
 }
 
 function extractSectionItems(dayText, sectionName) {
@@ -523,7 +592,11 @@ function connectCategoryClicks() {
 }
 
 function renderBarChart(container, days, key, type) {
-  const dailyTotals = Array.from({ length: 31 }, (_, index) => {
+  const [, month = "01", year = new Date().getFullYear()] =
+    days[0]?.date.split(".") || [];
+  const daysInMonth = new Date(Number(year), Number(month), 0).getDate() || 31;
+
+  const dailyTotals = Array.from({ length: daysInMonth }, (_, index) => {
     const dayNumber = String(index + 1).padStart(2, "0");
     const foundDay = days.find((day) => day.date.startsWith(dayNumber + "."));
 
@@ -666,24 +739,24 @@ function detectMonth(days) {
   if (!days.length) return "חודש נוכחי";
 
   const firstDate = days[0].date;
-  const monthNumber = firstDate.split(".")[1];
+  const [, monthNumber, year] = firstDate.split(".");
 
   const months = {
-    "01": "ינואר 2026",
-    "02": "פברואר 2026",
-    "03": "מרץ 2026",
-    "04": "אפריל 2026",
-    "05": "מאי 2026",
-    "06": "יוני 2026",
-    "07": "יולי 2026",
-    "08": "אוגוסט 2026",
-    "09": "ספטמבר 2026",
-    10: "אוקטובר 2026",
-    11: "נובמבר 2026",
-    12: "דצמבר 2026",
+    "01": "ינואר",
+    "02": "פברואר",
+    "03": "מרץ",
+    "04": "אפריל",
+    "05": "מאי",
+    "06": "יוני",
+    "07": "יולי",
+    "08": "אוגוסט",
+    "09": "ספטמבר",
+    10: "אוקטובר",
+    11: "נובמבר",
+    12: "דצמבר",
   };
 
-  return months[monthNumber] || "חודש נוכחי";
+  return months[monthNumber] ? `${months[monthNumber]} ${year}` : "חודש נוכחי";
 }
 
 function sortMap(map) {
