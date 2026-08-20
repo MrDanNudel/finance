@@ -305,11 +305,11 @@ function renderStatistics(days) {
 
   days.forEach((day) => {
     day.income.forEach((item) => {
-      addToCategoryMap(incomeMap, item);
+      addToCategoryMap(incomeMap, item, day.date);
     });
 
     day.expenses.forEach((item) => {
-      addToCategoryMap(expenseMap, item);
+      addToCategoryMap(expenseMap, item, day.date);
     });
   });
 
@@ -358,7 +358,7 @@ function renderStatistics(days) {
   );
 }
 
-function addToCategoryMap(map, item) {
+function addToCategoryMap(map, item, date) {
   const categoryName = item.name;
   const detailName = item.detail || item.name;
 
@@ -376,7 +376,10 @@ function addToCategoryMap(map, item) {
     map[categoryName].details[detailName] = [];
   }
 
-  map[categoryName].details[detailName].push(item.amount);
+  map[categoryName].details[detailName].push({
+    amount: item.amount,
+    date,
+  });
 }
 
 function sortCategoryMap(map) {
@@ -385,10 +388,11 @@ function sortCategoryMap(map) {
       ...category,
 
       details: Object.entries(category.details)
-        .flatMap(([name, amounts]) =>
-          amounts.map((amount) => ({
+        .flatMap(([name, entries]) =>
+          entries.map((entry) => ({
             name,
-            amount,
+            amount: entry.amount,
+            date: entry.date,
           })),
         )
         .sort((a, b) => b.amount - a.amount),
@@ -410,6 +414,7 @@ function renderCategoryStatItems(items, type = null) {
   const itemsHtml = visibleItems
     .map((item, index) => {
       const hasDetails = item.details && item.details.length > 1;
+      const singleDate = !hasDetails ? item.details?.[0]?.date : "";
 
       const isOpen = hasDetails && openCategory === item.name;
 
@@ -420,8 +425,9 @@ function renderCategoryStatItems(items, type = null) {
                 .map(
                   (detail) => `
                     <div class="category-detail-row">
-                      <span>${detail.name}</span>
-                      <span>${formatMoney(detail.amount)} ש״ח</span>
+                      <span class="category-detail-name">${detail.name}</span>
+                      <span class="category-detail-date">${detail.date}</span>
+                      <span class="category-detail-amount">${formatMoney(detail.amount)} ש״ח</span>
                     </div>
                   `,
                 )
@@ -445,9 +451,12 @@ function renderCategoryStatItems(items, type = null) {
           <div class="${buttonClass}" ${dataAttributes}>
             <span>${index + 1}. ${item.name}</span>
 
-            <span>
-              ${formatMoney(item.amount)} ש״ח
-              ${arrow}
+            <span class="stat-item-meta">
+              ${singleDate ? `<span class="stat-item-date">${singleDate}</span>` : ""}
+              <span class="stat-item-amount">
+                ${formatMoney(item.amount)} ש״ח
+                ${arrow}
+              </span>
             </span>
           </div>
 
