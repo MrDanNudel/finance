@@ -2,6 +2,8 @@ const uploadBtn = document.getElementById("uploadBtn");
 const fileInput = document.getElementById("fileInput");
 
 let showAllExpenses = false;
+let showAllOverallIncome = false;
+let showAllOverallExpenses = false;
 let openExpenseCategory = null;
 let openIncomeCategory = null;
 
@@ -128,6 +130,8 @@ async function handleFileUpload(event) {
 
   activeView = "statistics";
   showAllExpenses = false;
+  showAllOverallIncome = false;
+  showAllOverallExpenses = false;
   openExpenseCategory = null;
   openIncomeCategory = null;
 
@@ -289,13 +293,35 @@ function extractSectionItems(dayText, sectionName) {
     }
 
     items.push({
-      name: category,
+      name: normalizeCategoryName(category),
       detail,
       amount,
     });
   });
 
   return items;
+}
+
+function normalizeCategoryName(name) {
+  const normalizedName = name
+    .trim()
+    .replace(/[״׳"']/g, "")
+    .replace(/\s+/g, " ");
+
+  const reshefSecurityAliases = new Set([
+    "רשף ביטחון",
+    "רשפ ביטחון",
+    "רשף בטחון",
+    "רשפ בטחון",
+    "ווינגייט אבטחה",
+    "וינגייט אבטחה",
+    "ווינגייט ביטחון",
+    "וינגייט ביטחון",
+    "ווינגייט בטחון",
+    "וינגייט בטחון",
+  ]);
+
+  return reshefSecurityAliases.has(normalizedName) ? "רשף ביטחון" : name;
 }
 
 function renderDashboard(days) {
@@ -843,8 +869,10 @@ function renderAllMonthsSummary() {
   setMonthHighlight(bestBalanceMonth, bestBalance, "balance");
   setMonthHighlight(worstBalanceMonth, worstBalance, "balance");
 
-  allTopIncome.innerHTML = renderOverallRanking(sortedIncome, "income");
-  allTopExpenses.innerHTML = renderOverallRanking(sortedExpenses, "expense");
+  const recurringIncome = getRecurringCategories(sortedIncome);
+  const recurringExpenses = getRecurringCategories(sortedExpenses);
+
+  renderOverallRankings(recurringIncome, recurringExpenses);
 
   renderAllMonthsCharts(months);
 
@@ -934,13 +962,15 @@ function setSignedValueClass(element, value) {
 
 function renderOverallRanking(items, type) {
   if (!items.length) {
-    return `<div class="stat-item"><span>אין נתונים</span></div>`;
+    return `<div class="stat-item"><span>אין קטגוריות שחזרו ביותר מחודש אחד</span></div>`;
   }
 
   const total = items.reduce((sum, item) => sum + item.amount, 0);
+  const showAll =
+    type === "income" ? showAllOverallIncome : showAllOverallExpenses;
+  const visibleItems = showAll ? items : items.slice(0, 10);
 
-  return items
-    .slice(0, 10)
+  const rowsHtml = visibleItems
     .map((item, index) => {
       const percentage = total ? (item.amount / total) * 100 : 0;
 
@@ -955,6 +985,53 @@ function renderOverallRanking(items, type) {
       `;
     })
     .join("");
+
+  const buttonHtml =
+    items.length > 10
+      ? `
+        <button
+          class="show-more-btn overall-show-more-btn ${type}-overall-show-more"
+          data-overall-type="${type}"
+          type="button"
+        >
+          ${showAll ? "הצג פחות" : `הצג עוד (${items.length - 10})`}
+        </button>
+      `
+      : "";
+
+  return rowsHtml + buttonHtml;
+}
+
+function getRecurringCategories(items) {
+  return items.filter((item) => {
+    const monthsWithActivity = new Set(
+      item.details
+        .map((detail) => {
+          const [, month, year] = detail.date.split(".");
+          return month && year ? `${year}-${month}` : null;
+        })
+        .filter(Boolean),
+    );
+
+    return monthsWithActivity.size >= 2;
+  });
+}
+
+function renderOverallRankings(sortedIncome, sortedExpenses) {
+  allTopIncome.innerHTML = renderOverallRanking(sortedIncome, "income");
+  allTopExpenses.innerHTML = renderOverallRanking(sortedExpenses, "expense");
+
+  document.querySelectorAll("[data-overall-type]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (button.dataset.overallType === "income") {
+        showAllOverallIncome = !showAllOverallIncome;
+      } else {
+        showAllOverallExpenses = !showAllOverallExpenses;
+      }
+
+      renderOverallRankings(sortedIncome, sortedExpenses);
+    });
+  });
 }
 
 function renderAllMonthsCharts(months) {
